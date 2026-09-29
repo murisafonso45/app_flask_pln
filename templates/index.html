@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Sistema de análise de sentimento utilizando Flask, spaCy e SQLite."
+    >
+
+    <title>Analisador de Sentimentos</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="site-header">
+
+    <div class="container">
+
+        <h1>Analisador de Sentimentos</h1>
+
+        <p>
+            Analise rapidamente comentários de clientes
+            utilizando processamento de linguagem natural.
+        </p>
+
+    </div>
+
+</header>
+
+
+<main class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% if messages %}
+
+            <section aria-label="Mensagens do sistema">
+
+                {% for category, message in messages %}
+
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </section>
+
+        {% endif %}
+
+    {% endwith %}
+
+
+    <section class="analysis-section">
+
+        <article class="card">
+
+            <header>
+                <h2>Novo comentário</h2>
+
+                <p>
+                    Digite um comentário para descobrir sua polaridade.
+                </p>
+            </header>
+
+
+            <form method="POST" action="{{ url_for('index') }}">
+
+                <div class="form-group">
+
+                    <label for="comentario">
+                        Comentário do cliente
+                    </label>
+
+                    <textarea
+                        id="comentario"
+                        name="comentario"
+                        rows="7"
+                        maxlength="2000"
+                        placeholder="Ex.: O atendimento foi excelente e rápido!"
+                        required
+                    ></textarea>
+
+                    <small>
+                        Máximo de 2000 caracteres.
+                    </small>
+
+                </div>
+
+
+                <button type="submit" class="btn">
+                    Analisar comentário
+                </button>
+
+            </form>
+
+        </article>
+
+
+        {% if resultado %}
+
+        <article
+            class="card result-card {{ resultado.sentimento }}"
+            aria-live="polite"
+        >
+
+            <header>
+                <h2>Resultado da análise</h2>
+            </header>
+
+
+            <div class="result">
+
+                <span class="result-label">
+                    Sentimento
+                </span>
+
+                <strong class="sentiment">
+                    {{ resultado.sentimento|capitalize }}
+                </strong>
+
+                <span>
+                    Score:
+                    {{ resultado.score }}
+                </span>
+
+            </div>
+
+        </article>
+
+        {% endif %}
+
+    </section>
+
+
+    <section class="history-section">
+
+        <header>
+            <h2>Histórico de análises</h2>
+
+            <p>
+                Comentários analisados recentemente.
+            </p>
+        </header>
+
+
+        {% if comentarios %}
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Comentário</th>
+                        <th>Sentimento</th>
+                        <th>Score</th>
+                        <th>Data</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for comentario in comentarios %}
+
+                    <tr>
+
+                        <td>
+                            {{ comentario["id"] }}
+                        </td>
+
+                        <td>
+                            {{ comentario["texto"] }}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="badge {{ comentario['sentimento'] }}"
+                            >
+                                {{ comentario["sentimento"]|capitalize }}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {{ comentario["score"] }}
+                        </td>
+
+                        <td>
+                            {{ comentario["criado_em"] }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <article class="empty-state">
+
+            <p>
+                Nenhum comentário foi analisado ainda.
+            </p>
+
+        </article>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+
+<footer class="site-footer">
+
+    <div class="container">
+
+        <p>
+            Sistema de PLN • Flask + spaCy + SQLite
+        </p>
+
+    </div>
+
+</footer>
+
+</body>
+
+</html>
